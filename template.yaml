@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM App - My-App Notification Functions
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.12
+    Tracing: Active
+
+Resources:
+
+  # ✅ Define the SQS Queue here so it's created automatically
+  UploadsNotificationQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: My-App-UploadsNotificationQueue
+
+  UploadsNotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: My-App-UploadsNotificationFunction
+      CodeUri: uploads_notification/
+      Handler: app.lambda_handler
+      AutoPublishAlias: live
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - SQSPollerPolicy:
+            QueueName: !Ref UploadsNotificationQueue         # ✅ Uses the declared queue
+        - Statement:
+            - Effect: Allow
+              Action: sns:Publish
+              Resource: arn:aws:sns:us-east-1:911095257940:My-App-UploadsNotificationTopic
+      Events:
+        SQSQueue:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt UploadsNotificationQueue.Arn       # ✅ Uses the ARN of created queue
+    DeploymentPreference:
+      Type: AllAtOnce
