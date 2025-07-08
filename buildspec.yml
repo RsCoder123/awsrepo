@@ -9,7 +9,7 @@ phases:
   build:
     commands:
       - sam build
-      - sam package --output-template-file packaged.yaml --s3-bucket myapp-sam-artifact-bucket
+      - sam package --output-template-file packaged.yaml --s3-bucket aws-sam-cli-managed-default-samclisourcebucket-tykecoorjckq
 
 artifacts:
   files:
